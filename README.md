@@ -22,9 +22,9 @@ It's a fork from vas3k blog codebase. Which was never written with intention of 
 - Markdown with a bunch of [custom plugins](common/markdown/plugins)
 
 **CI/CD:**
-- Github Actions builds an arm64 image and pushes it to `ghcr.io/nikilyushkin/blog`
+- Github Actions builds an arm64 image and pushes it to `ghcr.io/kindorg-hq/blog`
 - Deployment is GitOps: CI writes the new image tag into the
-  [homelab-k8s](https://github.com/nikilyushkin/homelab-k8s) repository and
+  [homelab-k8s](https://github.com/kindorg-hq/homelab-k8s) repository and
   ArgoCD rolls it out to a Kubernetes cluster running at home
 - `docker-compose.yml` is for local development only — there is no production
   compose file any more
