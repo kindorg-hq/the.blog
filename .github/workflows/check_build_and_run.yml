@@ -28,4 +28,4 @@ jobs:
           docker compose exec -T blog_app make migrate
       - name: Run tests
         run: |
-          docker compose exec -T blog_app poetry run pytest --tb=short -q
+          docker compose exec -T blog_app python -m pytest --tb=short -q
