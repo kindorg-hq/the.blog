@@ -1,0 +1,17 @@
+# ci v4 (kindorg-hq/ci): what a pull request runs — Build → Accept.
+# Build also runs compose.test.yml (migrate + pytest against Postgres) on the
+# image it built. Publishes nothing. How it works: https://github.com/kindorg-hq/ci
+name: pull-request
+run-name: "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+
+on:
+  pull_request:
+
+jobs:
+  # keep the job id: it is the first part of every check name (ci / Build, ci / Accept)
+  ci:
+    uses: kindorg-hq/ci/.github/workflows/pull-request.yml@v4
+    permissions: {contents: read, pull-requests: read}
+    with:
+      images: '[{"name": "blog"}]'
+      test-compose: compose.test.yml
