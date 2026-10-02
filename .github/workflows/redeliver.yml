@@ -1,0 +1,18 @@
+# ci v4 (kindorg-hq/ci): re-deliver the latest Release by hand (a delivery
+# that died on the way): `gh workflow run redeliver.yml`. Not a rollback: it
+# cannot deliver an older version, and it never rebuilds.
+name: re-deliver
+run-name: Re-deliver the latest Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    uses: kindorg-hq/ci/.github/workflows/redeliver.yml@v4
+    permissions: {contents: read, packages: write, pull-requests: write, deployments: write}
+    with:
+      app: blog
+      images: '[{"name": "blog"}]'
+      url: https://heynik.blog
+    secrets: inherit

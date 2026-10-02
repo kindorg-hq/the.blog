@@ -1,0 +1,20 @@
+# ci v4 (kindorg-hq/ci): a merge to main — Build → Accept → Deliver. A
+# Releasable change becomes a Release and is delivered to the cluster; other
+# merges ship with the next Release. How it works: https://github.com/kindorg-hq/ci
+# No run-name: the version is not known when the run starts; the summary names it.
+name: ship
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: kindorg-hq/ci/.github/workflows/ship.yml@v4
+    permissions: {contents: read, packages: write, pull-requests: write, deployments: write}
+    with:
+      app: blog
+      images: '[{"name": "blog"}]'
+      url: https://heynik.blog
+      test-compose: compose.test.yml
+    secrets: inherit
