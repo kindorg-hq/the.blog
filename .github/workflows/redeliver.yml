@@ -15,4 +15,5 @@ jobs:
       app: blog
       images: '[{"name": "blog"}]'
       url: https://heynik.blog
-    secrets: inherit
+    secrets:
+      KINDORG_CI_APP_KEY: ${{ secrets.KINDORG_CI_APP_KEY }}

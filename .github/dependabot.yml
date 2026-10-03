@@ -1,0 +1,20 @@
+# What ships is decided by the commit prefix (kindorg-hq/ci v4): Python
+# packages are runtime dependencies, so fix(deps) cuts a Release; Actions and
+# the Docker base images are chore(deps) and ship with the next one.
+version: 2
+updates:
+  - package-ecosystem: pip   # Poetry: pyproject.toml + poetry.lock
+    directory: /
+    schedule: {interval: weekly}
+    commit-message: {prefix: "fix(deps)"}
+    groups:
+      python-minor-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+    commit-message: {prefix: "chore(deps)"}
+  - package-ecosystem: docker
+    directory: /
+    schedule: {interval: weekly}
+    commit-message: {prefix: "chore(deps)"}

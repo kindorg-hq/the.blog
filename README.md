@@ -21,8 +21,8 @@ It's a fork from vas3k blog codebase. Which was never written with intention of 
 **Blogging part:**
 - Markdown with a bunch of [custom plugins](common/markdown/plugins)
 
-**CI/CD:** the kindorg-hq golden path,
-[ci v4](https://github.com/kindorg-hq/ci/blob/v4/README.md)
+**CI/CD:** [ci v4](https://github.com/kindorg-hq/ci/blob/v4/README.md) from kindorg-hq,
+in Stages: Build → Accept → Deliver
 - A pull request runs `ci / Build` (the arm64 image, then the tests in
   `compose.test.yml` against it) and `ci / Accept` (image scan, PR title
   `type(#N): summary`, secrets, dependencies). Both are required.

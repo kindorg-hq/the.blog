@@ -17,4 +17,5 @@ jobs:
       images: '[{"name": "blog"}]'
       url: https://heynik.blog
       test-compose: compose.test.yml
-    secrets: inherit
+    secrets:
+      KINDORG_CI_APP_KEY: ${{ secrets.KINDORG_CI_APP_KEY }}
