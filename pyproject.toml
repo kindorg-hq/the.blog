@@ -21,7 +21,7 @@ lxml = "^6.1.0"
 PyJWT = "^2.15.0"
 cryptography = "^50.0.0"
 gunicorn = ">=22,<27"
-uvicorn = {extras = ["standard"], version = "^0.20.0"}
+uvicorn = {extras = ["standard"], version = ">=0.20,<0.55"}
 sentry-sdk = "^2.8.0"
 Authlib = "^1.6.9"
 urllib3 = "^2.8.0"
