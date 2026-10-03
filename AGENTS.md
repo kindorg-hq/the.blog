@@ -1,6 +1,6 @@
 # Changing the.blog
 
-The blog ships through the kindorg-hq golden path (ci v4). The conventions —
+The blog ships through kindorg-hq ci v4 (Stages: Build → Accept → Deliver). The conventions —
 work item, branch, PR title `type(#N): summary`, green before merge,
 squash-merge, "a merge to the default branch ships", reading a PR's delivery
 state, fix forward — are in
@@ -15,7 +15,7 @@ the.blog specifics:
   (`feat`, `fix`, `perf` or a breaking change make a Release; `chore`, `ci`,
   `docs`, `refactor`, `test` ship with the next one).
 - **Tests live in `compose.test.yml`**: the image under test (`IMAGE_BLOG`)
-  next to Postgres 16, `migrate` then `pytest`. The golden path runs it in
+  next to Postgres 16, `migrate` then `pytest`. ci v4 runs it in
   `ci / Build` on every PR (the image just built) and every merge (the
   pushed image, by digest). Run it locally the same way:
   `docker build -t blog:test . && IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --rm -T test`,
@@ -25,7 +25,10 @@ the.blog specifics:
   required checks `ci / Build`, `ci / Accept`), `ship.yml` (a merge to `main`:
   Build → Accept → Deliver) and `redeliver.yml` (by hand). Keep the job id
   `ci`: it is the first part of every check name. Image:
-  `ghcr.io/kindorg-hq/blog`.
+  `ghcr.io/kindorg-hq/blog`. `ship.yml` and `redeliver.yml` pass only the
+  `KINDORG_CI_APP_KEY` secret; app secrets live in the cluster (SOPS).
+- **Dependabot** (`.github/dependabot.yml`): Python packages are `fix(deps)`
+  (a Release), Actions and the Docker base image `chore(deps)`.
 - **Production**: https://heynik.blog, manifests in kindorg-hq/homelab-k8s
   under `manifests/blog/` (ArgoCD Application `blog`, namespace `public`).
   Re-deliver the latest Release with
