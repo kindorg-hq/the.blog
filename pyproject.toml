@@ -8,7 +8,7 @@ authors = ["Nik Ray <hi@nikilyushk.in>"]
 python = "^3.10"
 packaging = ">=24.1"
 Django = "^5.2.17"
-python-slugify = "^8.0.0"
+python-slugify = ">=8,<10"
 psycopg2-binary = "^2.9.5"
 beautifulsoup4 = "^4.11.1"
 mistune = "^3.3.0"
