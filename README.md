@@ -8,7 +8,7 @@ It's a fork from vas3k blog codebase. Which was never written with intention of 
 ## ⚙️ Tech details
 
 **Backend:**
-- Python 3.10+
+- Python 3.12–3.14 (`pyproject.toml`; the image runs 3.14)
 - Django 4+
 - PostgreSQL
 - [Poetry](https://python-poetry.org/) as a package manager
