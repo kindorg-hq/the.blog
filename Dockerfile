@@ -11,17 +11,20 @@ RUN apt-get update \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Isolated venv outside /app so dev bind-mounts don't shadow it.
+# Poetry only exports the locked deps. It gets its own venv, outside /opt/venv,
+# so it and its own deps (not in poetry.lock) stay in the builder stage.
+RUN python -m venv /opt/poetry \
+    && /opt/poetry/bin/pip install --no-cache-dir poetry==2.3.4 poetry-plugin-export==1.9.0
+
+# Isolated venv outside /app so dev bind-mounts don't shadow it; the runtime
+# stage copies it, so it holds exactly what poetry.lock lists.
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-
-# Use Poetry only to lock-aware export deps; pip installs them into /opt/venv.
-RUN pip install --no-cache-dir poetry==2.3.4 poetry-plugin-export==1.9.0
 
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry export --with dev --without-hashes -f requirements.txt -o /tmp/requirements.txt \
+RUN /opt/poetry/bin/poetry export --with dev --without-hashes -f requirements.txt -o /tmp/requirements.txt \
     && pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . .
