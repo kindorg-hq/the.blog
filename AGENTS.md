@@ -86,6 +86,7 @@ Tests as CI runs them: `compose.test.yml` (see the top of this file) — against
 ## Testing
 
 - `pytest-django` with settings pinned in `pyproject.toml` (`[tool.pytest.ini_options]`).
+- Its `filterwarnings` (Django's next-version deprecations as errors) applies inside pytest only: `migrate`, `tests/boot_smoke.py` and gunicorn in the `blog` service run with Python's default filters. Check the rest with `python -Wd manage.py check`.
 - `conftest.py` at repo root provides `post`, `user`, `authed_client` fixtures — build on these instead of reconstructing Post/User in each test (Post needs explicit `created_at`, Comment creation requires an authenticated user).
 - `tests/test_smoke.py` is the safety-net suite: markdown pipeline, post-type registry, index/show_post/list/robots/sitemap responses, html_cache population, comment creation + counter. Don't delete these — they're the boundary tests a refactor needs to stay honest.
 - Tests run against the real Postgres (container or host). `--reuse-db` is on by default; pass `--create-db` the first time or after model changes.

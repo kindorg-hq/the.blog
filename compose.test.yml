@@ -33,20 +33,26 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: vas3k_blog
+      # Production boots with Sentry's DjangoIntegration (settings: a DSN and
+      # DEBUG off); so does this, with a DSN nothing listens on (port 9,
+      # discard): events are dropped, nothing leaves the run
+      SENTRY_DSN: http://public@127.0.0.1:9/1
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      # healthy = gunicorn answers on :8022, whatever the status (migrate runs
-      # first, so this also waits for it); the pages are boot_smoke.py's
+      # healthy = gunicorn answers `/` on :8022 (Host localhost, as
+      # Production's probes ask), whatever the status (migrate runs first, so
+      # this also waits for it); the pages' status is boot_smoke.py's to judge
       test:
         - CMD
         - python
         - -c
         - |
           import urllib.error, urllib.request
+          request = urllib.request.Request("http://127.0.0.1:8022/", headers={"Host": "localhost"})
           try:
-              urllib.request.urlopen("http://127.0.0.1:8022/robots.txt", timeout=2)
+              urllib.request.urlopen(request, timeout=2)
           except urllib.error.HTTPError:
               pass
       interval: 2s

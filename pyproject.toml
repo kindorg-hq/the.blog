@@ -47,6 +47,11 @@ addopts = "--reuse-db -ra"
 # The last matching entry wins: other libraries' DeprecationWarnings stay
 # quiet, Django's for its next two feature releases (5.2: 6.0 and 6.1) fail the
 # test that raised them. The aliases follow Django, so no edit on an upgrade.
+# A third-party library tripping them (not our code): a module-scoped ignore
+# AFTER the error rules, e.g.
+#   "ignore::django.utils.deprecation.RemovedAfterNextVersionWarning:debug_toolbar",
+# (Django warns with stacklevel=2, so the module is the caller's), with an
+# issue to drop it once the library is fixed.
 filterwarnings = [
     "ignore::DeprecationWarning",
     "error::django.utils.deprecation.RemovedInNextVersionWarning",

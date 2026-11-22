@@ -20,8 +20,9 @@ SLUG = "boot-smoke"
 HEADERS = {
     # DEBUG off: the Host must be in ALLOWED_HOSTS
     "Host": "localhost",
-    # TODO: drop once utils/request.py stops reading request.environ, which an
-    # ASGI request has no: without a proxy's header a post page is a 500
+    # TODO(#66): drop once utils/request.py stops reading request.environ,
+    # which an ASGI request has no: without a proxy's header a post page is a
+    # 500 (https://github.com/kindorg-hq/the.blog/issues/66)
     "X-Forwarded-For": "203.0.113.7",
 }
 
