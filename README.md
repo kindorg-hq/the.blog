@@ -73,7 +73,7 @@ Or as CI runs it (`compose.test.yml`: the built image, with the Dockerfile's
 
 ```
 $ docker build -t blog:test .
-$ IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test
+$ BUILDX_BUILDER=default IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test
 $ docker compose -f compose.test.yml down -v
 ```
 

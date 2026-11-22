@@ -23,7 +23,7 @@ the.blog specifics:
   the `dev` group, so the code tested is the shipped image's. Don't name that
   stage `test`: ci runs a `test` stage inside `docker build`, without
   Postgres. Run it locally the same way:
-  `docker build -t blog:test . && IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test`,
+  `docker build -t blog:test . && BUILDX_BUILDER=default IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test`,
   then `docker compose -f compose.test.yml down -v`.
 - **Workflows** (`.github/workflows/`): `pull-request.yml` (Build → Accept;
   required checks `ci / Build`, `ci / Accept`), `ship.yml` (a merge to `main`:
