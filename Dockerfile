@@ -11,7 +11,7 @@ ARG IMAGE_BLOG=runtime
 # Poetry only exports the locked deps, one file per group. It gets its own
 # venv in its own stage, so it and its own deps (not in poetry.lock) never
 # reach an image.
-FROM python:3.14-slim AS requirements
+FROM python:3.15-slim AS requirements
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -28,7 +28,7 @@ RUN mkdir /requirements \
 
 
 # ============== Builder ==============
-FROM python:3.14-slim AS builder
+FROM python:3.15-slim AS builder
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -56,7 +56,7 @@ RUN python manage.py collectstatic --noinput
 
 
 # ============== Runtime ==============
-FROM python:3.14-slim AS runtime
+FROM python:3.15-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
