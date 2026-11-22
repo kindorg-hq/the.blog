@@ -1,7 +1,9 @@
 # The blog's tests, run by ci v4's Build (`test-compose`) against the image it
 # just built: `docker compose -f compose.test.yml run --rm -T test`.
-# IMAGE_BLOG is that image (set by ci; locally: any blog image you built).
-# The image carries pytest (the Dockerfile installs the dev group).
+# IMAGE_BLOG is that image (set by ci: the loaded image on a pull request, the
+# pushed one by digest on a merge; locally: any blog image you built). It has
+# no pytest, so the service `test` is built FROM it: the Dockerfile's `dev`
+# stage, which adds only Poetry's dev group. The code tested is the image's.
 services:
   postgres:
     # postgres:16-alpine, multi-arch (Build runs on arm64)
@@ -15,7 +17,12 @@ services:
       interval: 2s
       retries: 30
   test:
-    image: ${IMAGE_BLOG:?set by ci}
+    # no `image:` here: it would tag this build as IMAGE_BLOG
+    build:
+      context: .
+      target: dev
+      args:
+        IMAGE_BLOG: ${IMAGE_BLOG:?set by ci}
     environment:
       DEBUG: "true"
       POSTGRES_HOST: postgres
