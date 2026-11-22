@@ -6,9 +6,10 @@
 # the runtime image copies, so they run in Production and the image scan sees
 # them. There is no prefix-development; it can come back once pytest leaves
 # the runtime image. Python security updates come as one PR, so advisories
-# Dependabot can fix itself land together; a fixable CRITICAL it cannot bump
-# (the base image's OS packages, a transitive pip package) still keeps every
-# PR red until fixed by hand.
+# Dependabot can fix in poetry.lock (transitive packages included) land
+# together. A fixable CRITICAL it cannot bump still keeps every PR red until
+# fixed by hand: a package outside poetry.lock (the base image's OS packages,
+# the venv's own pip) or a fix that conflicts with a parent's constraint.
 version: 2
 updates:
   - package-ecosystem: pip   # Poetry: pyproject.toml + poetry.lock
