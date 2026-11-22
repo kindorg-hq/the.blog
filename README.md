@@ -67,12 +67,13 @@ Smoke suite via pytest-django, against a real Postgres:
 $ poetry run pytest
 ```
 
-Or as CI runs it (`compose.test.yml`: the built image next to Postgres 16,
-`migrate` then `pytest`):
+Or as CI runs it (`compose.test.yml`: the built image, with the Dockerfile's
+`dev` stage adding pytest on top, next to Postgres 16, `migrate` then
+`pytest`; the image that ships has no pytest):
 
 ```
 $ docker build -t blog:test .
-$ IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --rm -T test
+$ BUILDX_BUILDER=default IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test
 $ docker compose -f compose.test.yml down -v
 ```
 

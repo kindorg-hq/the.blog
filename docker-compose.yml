@@ -3,6 +3,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      target: dev  # the runtime image plus the dev group (pytest)
     command: make docker-run-dev
     container_name: blog_app
     environment:
