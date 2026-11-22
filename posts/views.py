@@ -82,7 +82,7 @@ def render_index_html(request):
 
 
 def list_posts(request, post_type="all"):
-    posts = Post.visible_objects().select_related()
+    posts = Post.visible_objects()
 
     if post_type and post_type != "all":
         if post_type not in POST_TYPES:

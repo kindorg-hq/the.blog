@@ -69,7 +69,8 @@ $ poetry run pytest
 
 Or as CI runs it (`compose.test.yml`: the built image, with the Dockerfile's
 `dev` stage adding pytest on top, next to Postgres 16, `migrate` then
-`pytest`; the image that ships has no pytest):
+`pytest`, then a boot smoke over HTTP against the built image running its own
+CMD with `DEBUG=false`; the image that ships has no pytest):
 
 ```
 $ docker build -t blog:test .

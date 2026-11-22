@@ -4,6 +4,11 @@
 # pushed one by digest on a merge; locally: any blog image you built). It has
 # no pytest, so the service `test` is built FROM it: the Dockerfile's `dev`
 # stage, which adds only Poetry's dev group. The code tested is the image's.
+#
+# `test` first waits for `blog`: IMAGE_BLOG itself, booted as Production boots
+# it (its own CMD: migrate, then gunicorn with uvicorn workers, ASGI, DEBUG
+# off). Then pytest (Django's test client) and tests/boot_smoke.py (real HTTP
+# against `blog`); `test` fails if the image doesn't boot or a page isn't 200.
 services:
   postgres:
     # postgres:16-alpine, multi-arch (Build runs on arm64)
@@ -16,6 +21,37 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d vas3k_blog"]
       interval: 2s
       retries: 30
+  blog:
+    # the image under test as is: no command, no build; ci has it already
+    # (loaded on a pull request, pulled by digest on a merge), so never pulled
+    image: ${IMAGE_BLOG:?set by ci}
+    pull_policy: never
+    environment:
+      DEBUG: "false"
+      SECRET_KEY: not-a-secret-ci-boot-smoke
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: vas3k_blog
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # healthy = gunicorn answers on :8022, whatever the status (migrate runs
+      # first, so this also waits for it); the pages are boot_smoke.py's
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import urllib.error, urllib.request
+          try:
+              urllib.request.urlopen("http://127.0.0.1:8022/robots.txt", timeout=2)
+          except urllib.error.HTTPError:
+              pass
+      interval: 2s
+      timeout: 5s
+      retries: 60
   test:
     # no `image:` here: it would tag this build as IMAGE_BLOG
     build:
@@ -29,7 +65,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: vas3k_blog
+      BLOG_URL: http://blog:8022
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["sh", "-c", "python manage.py migrate --noinput && python -m pytest -p no:cacheprovider --tb=short -q"]
+      blog:
+        condition: service_healthy
+    # both run, the exit code is non-zero if either failed
+    command:
+      - sh
+      - -c
+      - |
+        python manage.py migrate --noinput || exit 1
+        python -m pytest -p no:cacheprovider --tb=short -q; tests=$$?
+        python -m tests.boot_smoke; smoke=$$?
+        [ "$$tests" = 0 ] && [ "$$smoke" = 0 ]

@@ -15,7 +15,13 @@ the.blog specifics:
   (`feat`, `fix`, `perf` or a breaking change make a Release; `chore`, `ci`,
   `docs`, `refactor`, `test` ship with the next one).
 - **Tests live in `compose.test.yml`**: the image under test (`IMAGE_BLOG`)
-  next to Postgres 16, `migrate` then `pytest`. ci v4 runs it in
+  next to Postgres 16, `migrate` then `pytest`, then `tests/boot_smoke.py`:
+  real HTTP to the service `blog`, IMAGE_BLOG booted as Production boots it
+  (its own CMD: migrate, gunicorn + uvicorn, ASGI, `DEBUG=false`), which `test`
+  waits for; `/`, a post, `/godmode/login/` and a CSS file must be 200. pytest
+  turns Django's next-version deprecations into errors (pyproject's
+  `filterwarnings`, last match wins) and opens every admin page
+  (`tests/test_admin.py`). ci v4 runs it in
   `ci / Build` on every PR (the image just built) and every merge (the
   pushed image, by digest). The shipped image (the Dockerfile's last stage,
   `runtime`) carries only Poetry's main group, no pytest; the service `test`

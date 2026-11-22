@@ -18,6 +18,7 @@ class PostEditForm(ModelForm):
     image = forms.URLField(
         label="Image",
         required=False,
+        assume_scheme="https",
     )
 
     text = forms.CharField(

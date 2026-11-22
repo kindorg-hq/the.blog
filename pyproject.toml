@@ -44,6 +44,11 @@ dev = [
 DJANGO_SETTINGS_MODULE = "heynik_blog.settings"
 python_files = ["test_*.py", "*_tests.py", "tests.py"]
 addopts = "--reuse-db -ra"
+# The last matching entry wins: other libraries' DeprecationWarnings stay
+# quiet, Django's for its next two feature releases (5.2: 6.0 and 6.1) fail the
+# test that raised them. The aliases follow Django, so no edit on an upgrade.
 filterwarnings = [
     "ignore::DeprecationWarning",
+    "error::django.utils.deprecation.RemovedInNextVersionWarning",
+    "error::django.utils.deprecation.RemovedAfterNextVersionWarning",
 ]
