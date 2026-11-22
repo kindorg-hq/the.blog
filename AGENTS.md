@@ -40,7 +40,7 @@ Fork of the vas3k.ru blog codebase, rebranded as `heynik.blog`. Single-tenant au
 
 ## Stack
 
-- Python 3.10+/3.11+, Django 5.2, PostgreSQL 16
+- Python 3.12–3.14 (`pyproject.toml`; the image runs 3.14), Django 5.2, PostgreSQL 16
 - Poetry for dependency management (`pyproject.toml` / `poetry.lock`)
 - Frontend: htmx + vanilla JS, no bundler, no CSS framework; templates in `frontend/html/`, static in `frontend/static/`
 - Markdown rendering via `mistune` with custom plugins in `common/markdown/plugins/`
