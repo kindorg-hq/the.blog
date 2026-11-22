@@ -17,10 +17,14 @@ the.blog specifics:
 - **Tests live in `compose.test.yml`**: the image under test (`IMAGE_BLOG`)
   next to Postgres 16, `migrate` then `pytest`. ci v4 runs it in
   `ci / Build` on every PR (the image just built) and every merge (the
-  pushed image, by digest). Run it locally the same way:
-  `docker build -t blog:test . && IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --rm -T test`,
-  then `docker compose -f compose.test.yml down -v`. The image carries pytest
-  (the Dockerfile installs Poetry's `dev` group), so no test image is built.
+  pushed image, by digest). The shipped image (the Dockerfile's last stage,
+  `runtime`) carries only Poetry's main group, no pytest; the service `test`
+  is built `FROM` IMAGE_BLOG as the Dockerfile's `dev` stage, which adds only
+  the `dev` group, so the code tested is the shipped image's. Don't name that
+  stage `test`: ci runs a `test` stage inside `docker build`, without
+  Postgres. Run it locally the same way:
+  `docker build -t blog:test . && IMAGE_BLOG=blog:test docker compose -f compose.test.yml run --build --rm -T test`,
+  then `docker compose -f compose.test.yml down -v`.
 - **Workflows** (`.github/workflows/`): `pull-request.yml` (Build → Accept;
   required checks `ci / Build`, `ci / Accept`), `ship.yml` (a merge to `main`:
   Build → Accept → Deliver) and `redeliver.yml` (by hand). Keep the job id
@@ -28,9 +32,11 @@ the.blog specifics:
   `ghcr.io/kindorg-hq/blog`. `ship.yml` and `redeliver.yml` pass only the
   `KINDORG_CI_APP_KEY` secret; app secrets live in the cluster (SOPS).
 - **Dependabot** (`.github/dependabot.yml`): what runs in Production is
-  `fix(deps)` (a Release): Python packages, runtime and dev (the dev group is
-  installed in the runtime image), and the Docker base image. Actions are
-  `chore(deps)`. Python security updates come as one grouped PR.
+  `fix(deps)` (a Release): Python runtime packages (the main group, the only
+  one in the shipped image) and the Docker base image. The dev group (only in
+  the `dev` stage) and Actions are `chore(deps)`. Python security updates come
+  as one grouped PR. A package the shipped image needs belongs in the main
+  group; moving one into it makes its bumps `fix(deps)` again.
 - **Production**: https://heynik.blog, manifests in kindorg-hq/homelab-k8s
   under `manifests/blog/` (ArgoCD Application `blog`, namespace `public`).
   Re-deliver the latest Release with
@@ -60,7 +66,7 @@ poetry run pytest path/to/tests.py::TestClass::test_method   # single test
 poetry run python3 manage.py <cmd>  # any Django management command
 ```
 
-Docker, local development (`docker-compose.yml`, hot reload):
+Docker, local development (`docker-compose.yml`, hot reload; it builds the `dev` stage, so pytest is there):
 ```
 docker compose up                 # builds app + postgres, runs migrations, serves on :8000
 docker compose exec -T blog_app make migrate
