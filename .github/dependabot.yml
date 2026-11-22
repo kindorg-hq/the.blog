@@ -1,8 +1,11 @@
 # What ships is decided by the commit prefix (kindorg-hq/ci v4): Python
-# runtime packages (Poetry main group) are fix(deps), so they cut a Release;
-# the dev group (pytest, pytest-django), Actions and the Docker base images are
-# chore(deps) and ship with the next one. Groups are split by dependency type
-# so a dev bump never rides in a runtime PR (a mixed group takes fix(deps)).
+# runtime packages (Poetry main group) and the Docker base image change what
+# runs in Production, so they are fix(deps) and cut a Release; the dev group
+# (pytest, pytest-django) and Actions are chore(deps) and ship with the next
+# one. Version-update groups are split by dependency type so a dev bump never
+# rides in a runtime PR (a mixed group takes fix(deps)). Security updates for
+# Python packages come as one PR: the image scan fails on any fixable CRITICAL,
+# so a PR fixing one advisory while another is open could never be green.
 version: 2
 updates:
   - package-ecosystem: pip   # Poetry: pyproject.toml + poetry.lock
@@ -17,6 +20,10 @@ updates:
         update-types: [minor, patch]
       python-dev:
         dependency-type: development
+      python-security:
+        applies-to: security-updates
+        patterns: ["*"]
+        update-types: [major, minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: weekly}
@@ -24,4 +31,4 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule: {interval: weekly}
-    commit-message: {prefix: "chore(deps)"}
+    commit-message: {prefix: "fix(deps)"}

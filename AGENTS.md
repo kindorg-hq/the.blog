@@ -27,8 +27,11 @@ the.blog specifics:
   `ci`: it is the first part of every check name. Image:
   `ghcr.io/kindorg-hq/blog`. `ship.yml` and `redeliver.yml` pass only the
   `KINDORG_CI_APP_KEY` secret; app secrets live in the cluster (SOPS).
-- **Dependabot** (`.github/dependabot.yml`): Python packages are `fix(deps)`
-  (a Release), Actions and the Docker base image `chore(deps)`.
+- **Dependabot** (`.github/dependabot.yml`): what runs in Production is
+  `fix(deps)` (a Release): Python runtime packages and the Docker base image.
+  Python dev packages and Actions are `chore(deps)`. Python security updates
+  come as one grouped PR, since the image scan fails while any fixable
+  CRITICAL is left.
 - **Production**: https://heynik.blog, manifests in kindorg-hq/homelab-k8s
   under `manifests/blog/` (ArgoCD Application `blog`, namespace `public`).
   Re-deliver the latest Release with
