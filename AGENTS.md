@@ -15,7 +15,13 @@ the.blog specifics:
   (`feat`, `fix`, `perf` or a breaking change make a Release; `chore`, `ci`,
   `docs`, `refactor`, `test` ship with the next one).
 - **Tests live in `compose.test.yml`**: the image under test (`IMAGE_BLOG`)
-  next to Postgres 16, `migrate` then `pytest`. ci v4 runs it in
+  next to Postgres 16, `migrate` then `pytest`, then `tests/boot_smoke.py`:
+  real HTTP to the service `blog`, IMAGE_BLOG booted as Production boots it
+  (its own CMD: migrate, gunicorn + uvicorn, ASGI, `DEBUG=false`), which `test`
+  waits for; `/`, a post, `/godmode/login/` and a CSS file must be 200. pytest
+  turns Django's next-version deprecations into errors (pyproject's
+  `filterwarnings`, last match wins) and opens every admin page
+  (`tests/test_admin.py`). ci v4 runs it in
   `ci / Build` on every PR (the image just built) and every merge (the
   pushed image, by digest). The shipped image (the Dockerfile's last stage,
   `runtime`) carries only Poetry's main group, no pytest; the service `test`
@@ -80,6 +86,7 @@ Tests as CI runs them: `compose.test.yml` (see the top of this file) — against
 ## Testing
 
 - `pytest-django` with settings pinned in `pyproject.toml` (`[tool.pytest.ini_options]`).
+- Its `filterwarnings` (Django's next-version deprecations as errors) applies inside pytest only: `migrate`, `tests/boot_smoke.py` and gunicorn in the `blog` service run with Python's default filters. Check the rest with `python -Wd manage.py check`.
 - `conftest.py` at repo root provides `post`, `user`, `authed_client` fixtures — build on these instead of reconstructing Post/User in each test (Post needs explicit `created_at`, Comment creation requires an authenticated user).
 - `tests/test_smoke.py` is the safety-net suite: markdown pipeline, post-type registry, index/show_post/list/robots/sitemap responses, html_cache population, comment creation + counter. Don't delete these — they're the boundary tests a refactor needs to stay honest.
 - Tests run against the real Postgres (container or host). `--reuse-db` is on by default; pass `--create-db` the first time or after model changes.

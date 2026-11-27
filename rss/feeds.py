@@ -14,8 +14,7 @@ class FullFeed(Feed):
     def items(self):
         items = Post.visible_objects()\
             .filter(is_visible_on_home_page=True)\
-            .order_by("-published_at")\
-            .select_related()[:30]
+            .order_by("-published_at")[:30]
         return items
 
     def item_title(self, item):
@@ -60,6 +59,5 @@ class PublicFeed(FullFeed):
     def items(self):
         items = Post.visible_objects()\
             .filter(is_visible_on_home_page=True, is_members_only=False)\
-            .order_by("-created_at")\
-            .select_related()[:20]
+            .order_by("-created_at")[:20]
         return items

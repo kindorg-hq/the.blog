@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin, messages
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils import timezone
@@ -18,19 +19,29 @@ BOOK_DATA_FIELDS = (
 )
 
 
+def https_url_formfield(db_field, **kwargs):
+    # a URL typed without a scheme gets https (Django 6's default, 5.2 warns)
+    if isinstance(db_field, models.URLField):
+        kwargs.setdefault("assume_scheme", "https")
+    return db_field.formfield(**kwargs)
+
+
 class PostAdminForm(forms.ModelForm):
     book_author = forms.CharField(label="Author", required=False)
     book_year = forms.IntegerField(label="Year", required=False)
     book_pages = forms.IntegerField(label="Pages", required=False)
     book_rating = forms.IntegerField(label="Rating (1-10)", required=False, min_value=1, max_value=10)
-    book_amazon_url = forms.URLField(label="Amazon URL", required=False)
-    book_bookshop_url = forms.URLField(label="Bookshop URL", required=False)
-    book_goodreads_url = forms.URLField(label="Goodreads URL", required=False)
+    book_amazon_url = forms.URLField(label="Amazon URL", required=False, assume_scheme="https")
+    book_bookshop_url = forms.URLField(label="Bookshop URL", required=False, assume_scheme="https")
+    book_goodreads_url = forms.URLField(label="Goodreads URL", required=False, assume_scheme="https")
     book_domain = forms.CharField(label="Domain / topic", required=False)
 
     class Meta:
         model = Post
         fields = "__all__"
+        # the admin builds its own form from this one with its own callback,
+        # which reads PostAdmin.formfield_overrides: both say https
+        formfield_callback = https_url_formfield
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,6 +76,8 @@ class PostAdmin(admin.ModelAdmin):
     )
     ordering = ("-created_at",)
     change_form_template = "admin/posts/post/change_form.html"
+    # url, image, og_image: https, as PostAdminForm
+    formfield_overrides = {models.URLField: {"assume_scheme": "https"}}
 
     fieldsets = (
         (None, {
@@ -96,7 +109,7 @@ class PostAdmin(admin.ModelAdmin):
                 '<span style="color:#1b8a3a;">Sent {}</span>',
                 obj.newsletter_sent_at.strftime("%Y-%m-%d %H:%M"),
             )
-        return format_html('<span style="color:#888;">—</span>')
+        return format_html('<span style="color:#888;">{}</span>', "—")
     newsletter_status.short_description = "Newsletter"
 
     def get_urls(self):
