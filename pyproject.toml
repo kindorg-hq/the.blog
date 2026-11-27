@@ -21,7 +21,7 @@ PyJWT = "^2.15.0"
 cryptography = "^50.0.0"
 gunicorn = ">=22,<27"
 uvicorn = {extras = ["standard"], version = ">=0.20,<0.55"}
-sentry-sdk = "^2.8.0"
+sentry-sdk = ">=2.8,<4.0"
 urllib3 = "^2.8.0"
 tzdata = ">=2024.1,<2027.0"
 sqlparse = "^0.6.0"
